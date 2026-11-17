@@ -1,0 +1,29 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.thereistime.game'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'com.thereistime.game'
+        minSdk 29 // Android 10
+        targetSdk 36 // Android 16
+        versionCode 1
+        versionName '0.1.0'
+    }
+    buildTypes {
+        release { minifyEnabled false }
+    }
+    sourceSets.main.assets.srcDir layout.buildDirectory.dir('generated/gameAssets')
+}
+
+// Copy the shared game at build time; the project has a single source of truth.
+tasks.register('syncGameAssets', Sync) {
+    from('../..') {
+        include 'index.html', 'style.css', 'app.js', 'story.js', 'expansion.js', 'interlude.js',
+                'winter.js', 'last-winter.js', 'aftermath.js', 'long-nights.js', 'everyday.js'
+        include 'assets/*.webp', 'assets/*.mp3'
+    }
+    into layout.buildDirectory.dir('generated/gameAssets')
+}
+tasks.named('preBuild').configure { dependsOn tasks.named('syncGameAssets') }
